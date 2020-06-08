@@ -50,6 +50,30 @@ class Ratchet_client
     public $debug = false;
 
     /**
+     * Default local_cert_path var
+     * @var string
+     */
+    public $local_cert_path = null;
+
+    /**
+     * Default local_pk_path var
+     * @var string
+     */
+    public $local_pk_path = null;
+
+    /**
+     * Default allow_self_signed var
+     * @var bool
+     */
+    public $allow_self_signed = false;
+
+    /**
+     * Default verify_peer var
+     * @var bool
+     */
+    public $verify_peer = false;
+
+    /**
      * Auth callback informations
      * @var array
      */
@@ -101,6 +125,18 @@ class Ratchet_client
 
         // Assign DEBUG value to class var
         $this->debug = (!empty($this->config['ratchet_client']['debug'] && $this->config['ratchet_client']['debug'])) ? true : false;
+
+        // Assign local_cert_path value to class var
+        $this->local_cert_path = (!empty($this->config['ratchet_client']['local_cert_path'])) ? $this->config['ratchet_client']['local_cert_path'] : '';
+
+        // Assign local_pk_path value to class var
+        $this->local_pk_path = (!empty($this->config['ratchet_client']['local_pk_path'])) ? $this->config['ratchet_client']['local_pk_path'] : '';
+
+        // Assign allow_self_signed value to class var
+        $this->allow_self_signed = (!empty($this->config['ratchet_client']['allow_self_signed'] && $this->config['ratchet_client']['allow_self_signed'])) ? true : false;
+
+        // Assign verify_peer value to class var
+        $this->verify_peer = (!empty($this->config['ratchet_client']['verify_peer'] && $this->config['ratchet_client']['verify_peer'])) ? true : false;
     }
 
     /**
@@ -124,6 +160,34 @@ class Ratchet_client
 
         // Run the socket connection !
         $server->run();
+    }
+
+    /**
+     * Launch the server in secure mode
+     * @method wss_run
+     * @author Ale Felix <ale.felix.mail@gmail.com>
+     * @return string
+     */
+    public function wss_run()
+    {
+        $app = new HttpServer(
+            new WsServer(
+                new Server()
+            )
+        );
+
+        $loop = \React\EventLoop\Factory::create();
+
+        $secure_websockets = new \React\Socket\Server($this->host . ':' . $this->port, $loop);
+        $secure_websockets = new \React\Socket\SecureServer($secure_websockets, $loop, [
+            'local_cert' => $this->local_cert_path,
+            'local_pk' => $this->local_pk_path,
+            'allow_self_signed' => $this->allow_self_signed,
+            'verify_peer' => $this->verify_peer
+        ]);
+
+        $secure_websockets_server = new IoServer($app, $secure_websockets, $loop);
+        $secure_websockets_server->run();
     }
 
     /**
