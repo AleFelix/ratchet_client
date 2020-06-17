@@ -125,6 +125,7 @@ class User extends CI_Controller
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
     var conn = new WebSocket('ws://localhost:8282');
+    // var conn = new WebSocket('wss://localhost:8282');
     var client = {
         user_id: <?php echo $user_id; ?>,
         recipient_id: null,
@@ -187,7 +188,7 @@ If you want to broadcast message with php script or something else you can use l
 
 ```php
 $client = new Client('ws://0.0.0.0:8282');
-// or $client = new Client('wss://0.0.0.0:8282');
+// $client = new Client('wss://0.0.0.0:8282');
 
 $client->send(json_encode(array('user_id' => 1, 'message' => null)));
 $client->send(json_encode(array('user_id' => 1, 'message' => 'Super cool message to myself!')));
@@ -207,7 +208,12 @@ class Welcome extends CI_Controller
         // Run server
         $this->ratchet_client->set_callback('auth', array($this, '_auth'));
         $this->ratchet_client->set_callback('event', array($this, '_event'));
-        $this->ratchet_client->run();
+        
+	// To run in normal mode
+	$this->ratchet_client->run();
+	
+	// To run in secure mode
+	// $this->ratchet_client->wss_run();
     }
 
     public function _auth($datas = null)
