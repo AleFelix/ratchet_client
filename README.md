@@ -40,10 +40,15 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @var array
  */
 $config['ratchet_client'] = array(
-    'host' => '0.0.0.0',    // Default host
-    'port' => 8282,         // Default port (be carrefull to set unused server port)
-    'auth' => true,         // If authentication is mandatory
-    'debug' => true         // Better to set as false in Production
+    'host' => '0.0.0.0',           // Default host
+    'port' => 8282,                // Default port (be carrefull to set unused server port)
+    'auth' => true,                // If authentication is mandatory
+    'debug' => true                // Better to set as false in Production
+    // The following values are only necessary to run the client in wss mode
+    'local_cert' => null,          // Path to the TLS certificate file
+    'local_pk' => null,            // Path to the private key file
+    'allow_self_signed' => false,  // Allow self signed certificates
+    'verify_peer' => true          // Require verification of TSL certificate used
 );
 ```
 ### :arrow_right: Step 3 : Loading the library
@@ -77,6 +82,9 @@ class Welcome extends CI_Controller
 
         // Run server
         $this->ratchet_client->run();
+	
+	// To run in secure mode
+	// $this->ratchet_client->wss_run();
     }
 }
 ```
@@ -179,6 +187,7 @@ If you want to broadcast message with php script or something else you can use l
 
 ```php
 $client = new Client('ws://0.0.0.0:8282');
+// or $client = new Client('wss://0.0.0.0:8282');
 
 $client->send(json_encode(array('user_id' => 1, 'message' => null)));
 $client->send(json_encode(array('user_id' => 1, 'message' => 'Super cool message to myself!')));
@@ -230,7 +239,7 @@ Be free to open an issue or send pull request
 
 ## To do :construction:
  - Origin check
- - WSS support
+ - ~WSS support~
  - Add app routing fonctionnality
  - Websocket native library
 
