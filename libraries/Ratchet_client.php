@@ -349,9 +349,9 @@ class Server implements MessageComponentInterface
 
                 // Broadcast to single user
                 if (!empty($datas->recipient_id)) {
-                    if ($user->subscriber_id == $datas->recipient_id) {
+                    if (isset($user->subscriber_id) && $user->subscriber_id == $datas->recipient_id) {
                         $this->send_message($user, $message, $client);
-                        break;
+                        // We don't break the loop here because the same user could have multiple clients
                     }
                 } else {
                     // Broadcast to everybody
